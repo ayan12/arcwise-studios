@@ -1,0 +1,21 @@
+// Build: src/ + content -> dist/ (static, no dependencies). Assets get content hashes.
+import { readFile, writeFile, mkdir, cp, rm } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { site, work, t } from './src/content.mjs';
+import { renderPage, esc } from './src/page.mjs';
+const hash = (s) => createHash('sha256').update(s).digest('hex').slice(0, 10);
+if (!/^\d{8,15}$/.test(site.whatsapp)) throw new Error('site.whatsapp must be digits only, with country code');
+await rm('dist', { recursive: true, force: true });
+await mkdir('dist/assets', { recursive: true });
+await cp('public', 'dist', { recursive: true });
+const css = await readFile('src/styles.css', 'utf8'), js = await readFile('src/app.js', 'utf8');
+const assets = { css: `/assets/styles.${hash(css)}.css`, js: `/assets/app.${hash(js)}.js` };
+await writeFile('dist' + assets.css, css); await writeFile('dist' + assets.js, js);
+await writeFile('dist/index.html', renderPage(site, work, t.id, assets));
+await mkdir('dist/en', { recursive: true });
+await writeFile('dist/en/index.html', renderPage(site, work, t.en, assets));
+await writeFile('dist/robots.txt', `User-agent: *\nAllow: /\n\nSitemap: ${site.url}/sitemap.xml\n`);
+const today = new Date().toISOString().slice(0, 10);
+await writeFile('dist/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">\n${['/', '/en/'].map((p) => `  <url><loc>${esc(site.url + p)}</loc><lastmod>${today}</lastmod><xhtml:link rel="alternate" hreflang="id" href="${esc(site.url)}/"/><xhtml:link rel="alternate" hreflang="en" href="${esc(site.url)}/en/"/></url>`).join('\n')}\n</urlset>\n`);
+await writeFile('dist/404.html', `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Page not found · Arcwise Studios</title><meta name="robots" content="noindex"><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="${assets.css}"></head><body><main class="wrap sec"><p class="eyebrow">404</p><h1>This page took a different arc.</h1><p class="lede">Halaman tidak ditemukan.</p><p class="ctas"><a class="btn" href="/">Arcwise Studios</a></p></main></body></html>\n`);
+console.log('Built dist/', assets);
