@@ -1,6 +1,6 @@
 # Arcwise Studios website
 
-Static site, no framework. Indonesian at `/`, English at `/en/`.
+Static site, no framework. English at `/`, Indonesian at `/id/`.
 
 - **Edit text, prices, portfolio:** `src/content.mjs`
 - **Styles / behaviour:** `src/styles.css`, `src/app.js`, template in `src/page.mjs`

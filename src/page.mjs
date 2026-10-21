@@ -5,16 +5,17 @@ const wa = (num, msg) => `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
 const icon = {
   wa: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91C21.95 6.45 17.5 2 12.04 2Zm5.8 14.05c-.24.68-1.42 1.31-1.95 1.36-.5.05-.97.23-3.28-.68-2.78-1.1-4.55-3.95-4.69-4.13-.13-.18-1.12-1.49-1.12-2.85 0-1.36.71-2.02.97-2.3.25-.27.55-.34.73-.34.18 0 .37 0 .53.01.17.01.4-.06.62.48.23.55.78 1.91.85 2.05.07.14.11.3.02.48-.09.18-.14.3-.27.46-.14.16-.29.36-.41.48-.14.14-.28.29-.12.56.16.27.7 1.16 1.51 1.88 1.04.93 1.91 1.21 2.18 1.35.27.14.43.11.59-.07.16-.18.68-.79.86-1.07.18-.27.36-.23.61-.14.25.09 1.6.75 1.87.89.27.14.46.2.52.32.07.11.07.66-.17 1.34Z"/></svg>',
   arrow: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  mail: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4z M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>',
   check: '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
 };
 const mark = (cls = '') => `<svg class="mark ${cls}" viewBox="0 0 100 100" aria-hidden="true"><path d="M12 88A76 76 0 0 1 70 18" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round"/><circle cx="86" cy="14" r="9" class="dot"/></svg>`;
 
 export function renderPage(site, work, L, assets) {
-  const p = L.lang === 'id' ? '' : '/en';
+  const home = L.path;
   const hello = wa(site.whatsapp, L.waHello);
-  const alt = L.lang === 'id' ? { href: `${site.url}/en/`, lang: 'en' } : { href: `${site.url}/`, lang: 'id' };
-  const ld = { '@context': 'https://schema.org', '@type': 'ProfessionalService', name: site.name, url: site.url + L.path, areaServed: 'Worldwide', address: { '@type': 'PostalAddress', addressLocality: site.city, addressCountry: 'ID' }, telephone: '+' + site.whatsapp, description: L.description };
-  const data = { wa: site.whatsapp, err: L.form.err, intro: L.lang === 'id' ? 'Halo Arcwise Studios, saya mau minta konsep gratis.' : 'Hi Arcwise Studios, I\u2019d like a free concept.', labels: L.lang === 'id' ? { name: 'Nama', business: 'Bisnis', link: 'Link', need: 'Kebutuhan' } : { name: 'Name', business: 'Business', link: 'Link', need: 'Need' } };
+  const alt = { href: site.url + L.other.path, lang: L.other.label.toLowerCase() };
+  const ld = { '@context': 'https://schema.org', '@type': 'ProfessionalService', name: site.name, url: site.url + L.path, areaServed: 'Worldwide', email: site.email, telephone: '+' + site.whatsapp, description: L.description };
+  const data = { wa: site.whatsapp, email: site.email, err: L.form.err, msg: L.msg };
 
   return `<!DOCTYPE html>
 <html lang="${L.lang}">
@@ -26,7 +27,7 @@ export function renderPage(site, work, L, assets) {
 <link rel="canonical" href="${esc(site.url + L.path)}">
 <link rel="alternate" hreflang="${L.lang}" href="${esc(site.url + L.path)}">
 <link rel="alternate" hreflang="${alt.lang}" href="${esc(alt.href)}">
-<link rel="alternate" hreflang="x-default" href="${esc(site.url)}/en/">
+<link rel="alternate" hreflang="x-default" href="${esc(site.url)}/">
 <meta name="theme-color" content="#0F1115">
 <meta property="og:type" content="website">
 <meta property="og:title" content="${esc(L.title)}">
@@ -43,11 +44,11 @@ export function renderPage(site, work, L, assets) {
 <script src="${esc(assets.js)}" defer></script>
 </head>
 <body>
-<a class="skip" href="#main">${L.lang === 'id' ? 'Langsung ke konten' : 'Skip to content'}</a>
+<a class="skip" href="#main">${esc(L.skip)}</a>
 <header class="nav">
   <div class="wrap nav-in">
-    <a class="logo" href="${p}/" aria-label="Arcwise Studios">${mark()}<span class="logo-word">arcwise<small>studios</small></span></a>
-    <nav class="links" id="site-nav" aria-label="${L.lang === 'id' ? 'Menu utama' : 'Main menu'}">
+    <a class="logo" href="${home}" aria-label="Arcwise Studios">${mark()}<span class="logo-word">arcwise<small>studios</small></span></a>
+    <nav class="links" id="site-nav" aria-label="${esc(L.menu)}">
       <a href="#work">${esc(L.nav.work)}</a><a href="#services">${esc(L.nav.services)}</a><a href="#process">${esc(L.nav.process)}</a><a href="#pricing">${esc(L.nav.pricing)}</a><a href="#faq">${esc(L.nav.faq)}</a>
     </nav>
     <div class="nav-right">
@@ -88,7 +89,7 @@ export function renderPage(site, work, L, assets) {
           <img class="cm" src="/img/${esc(w.key)}-m.webp" width="360" height="720" alt="${esc(w.name)}, mobile" loading="lazy" decoding="async">
         </a>
         <div class="case-body">
-          <div class="case-top"><h3>${esc(w.name)}</h3><span class="tag ${w.type === 'client' ? 'tag-client' : ''}">${esc(w.type === 'client' ? L.client : L.concept)} · ${esc(w.place)}</span></div>
+          <div class="case-top"><h3>${esc(w.name)}</h3><span class="tag ${w.type === 'client' ? 'tag-client' : ''}">${esc(w.type === 'client' ? L.client : L.concept)} · ${esc(w.place[L.lang])}</span></div>
           <p>${esc(w[L.lang])}</p>
           <a class="more" href="${esc(w.url)}" target="_blank" rel="noopener noreferrer">${esc(L.view)}${icon.arrow}</a>
         </div>
@@ -134,7 +135,7 @@ export function renderPage(site, work, L, assets) {
 
 <section class="sec tint" id="faq">
   <div class="wrap split">
-    <div class="head reveal"><p class="eyebrow">${esc(L.faqH)}</p><h2>${L.lang === 'id' ? 'Yang sering ditanyakan.' : 'Good questions.'}</h2></div>
+    <div class="head reveal"><p class="eyebrow">${esc(L.faqH)}</p><h2>${esc(L.faqT)}</h2></div>
     <div class="faq">${L.faqs.map(([q, a]) => `<details><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>
   </div>
 </section>
@@ -142,15 +143,16 @@ export function renderPage(site, work, L, assets) {
 <section class="sec dark contact" id="contact">
   <div class="wrap split">
     <div class="head reveal">${mark('mark-lg')}<h2>${esc(L.contactH)}</h2><p class="lede">${esc(L.contactL)}</p>
-      <p class="direct"><a href="${esc(hello)}" target="_blank" rel="noopener noreferrer">${icon.wa}${esc(site.whatsappDisplay)}</a></p></div>
+      <p class="direct"><a href="${esc(hello)}" target="_blank" rel="noopener noreferrer">${icon.wa}${esc(site.whatsappDisplay)}</a><a href="mailto:${esc(site.email)}">${icon.mail}${esc(site.email)}</a></p></div>
     <form class="form reveal" id="lead-form" novalidate>
       <div class="row"><label for="f-name">${esc(L.form.name)}</label><input id="f-name" name="name" type="text" maxlength="60" autocomplete="name" required></div>
       <div class="row"><label for="f-business">${esc(L.form.business)}</label><input id="f-business" name="business" type="text" maxlength="80" autocomplete="organization" required></div>
+      <div class="row"><label for="f-country">${esc(L.form.country)}</label><input id="f-country" name="country" type="text" maxlength="60" autocomplete="country-name"></div>
       <div class="row"><label for="f-link">${esc(L.form.link)}</label><input id="f-link" name="link" type="text" maxlength="160" inputmode="url" autocomplete="url"></div>
       <div class="row"><label for="f-need">${esc(L.form.need)}</label><select id="f-need" name="need">${L.form.needs.map((n) => `<option>${esc(n)}</option>`).join('')}</select></div>
       <p class="err" id="f-err" role="alert"></p>
-      <button class="btn btn-full" type="submit">${icon.wa}${esc(L.form.send)}</button>
-      <p class="ok" id="f-ok" hidden>${esc(L.form.ok)} <a id="f-ok-link" href="${esc(hello)}" target="_blank" rel="noopener noreferrer">${esc(L.form.okLink)}</a>.</p>
+      <div class="send"><button class="btn btn-full" type="submit" name="via" value="wa">${icon.wa}${esc(L.form.send)}</button><button class="btn btn-full btn-alt" type="submit" name="via" value="email">${icon.mail}${esc(L.form.email)}</button></div>
+      <p class="ok" id="f-ok" hidden>${esc(L.form.ok)} <a href="mailto:${esc(site.email)}">${esc(site.email)}</a>.</p>
     </form>
   </div>
 </section>
@@ -158,9 +160,9 @@ export function renderPage(site, work, L, assets) {
 
 <footer class="foot">
   <div class="wrap foot-in">
-    <a class="logo" href="${p}/" aria-label="Arcwise Studios">${mark()}<span class="logo-word">arcwise<small>studios</small></span></a>
+    <a class="logo" href="${home}" aria-label="Arcwise Studios">${mark()}<span class="logo-word">arcwise<small>studios</small></span></a>
     <p>${esc(L.footer)}</p>
-    <p class="foot-links"><a href="${esc(hello)}" target="_blank" rel="noopener noreferrer">WhatsApp</a><a href="${esc(L.other.path)}" hreflang="${alt.lang}">${L.lang === 'id' ? 'English' : 'Bahasa Indonesia'}</a><span>© <span id="year">2026</span> Arcwise Studios</span></p>
+    <p class="foot-links"><a href="${esc(hello)}" target="_blank" rel="noopener noreferrer">WhatsApp</a><a href="mailto:${esc(site.email)}">Email</a><a href="${esc(L.other.path)}" hreflang="${alt.lang}">${esc(L.other.name)}</a><span>© <span id="year">2026</span> Arcwise Studios</span></p>
   </div>
 </footer>
 <a class="fab" href="${esc(hello)}" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Arcwise Studios">${icon.wa}</a>

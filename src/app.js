@@ -17,19 +17,21 @@
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(false); });
   matchMedia('(min-width: 901px)').addEventListener('change', (m) => { if (m.matches) setMenu(false); });
 
-  // lead form -> WhatsApp
+  // lead form -> WhatsApp or email (the button pressed decides)
   const form = $('#lead-form');
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    const via = (e.submitter && e.submitter.value) || 'wa';
     const f = new FormData(form);
-    const name = clean(f.get('name'), 60), business = clean(f.get('business'), 80), link = clean(f.get('link'), 160), need = clean(f.get('need'), 80);
+    const name = clean(f.get('name'), 60), business = clean(f.get('business'), 80), country = clean(f.get('country'), 60), link = clean(f.get('link'), 160), need = clean(f.get('need'), 80);
     const err = $('#f-err');
     if (!name || !business) { err.textContent = data.err; (name ? $('#f-business') : $('#f-name')).focus(); return; }
     err.textContent = '';
-    const L = data.labels;
-    const msg = [data.intro, '', `${L.name}: ${name}`, `${L.business}: ${business}`, link ? `${L.link}: ${link}` : null, `${L.need}: ${need}`].filter((x) => x !== null).join('\n');
-    const url = 'https://wa.me/' + data.wa + '?text=' + encodeURIComponent(msg);
-    $('#f-ok-link').href = url; $('#f-ok').hidden = false;
+    const M = data.msg;
+    const body = [M.intro, '', `${M.name}: ${name}`, `${M.business}: ${business}`, country ? `${M.country}: ${country}` : null, link ? `${M.link}: ${link}` : null, `${M.need}: ${need}`].filter((x) => x !== null).join('\n');
+    $('#f-ok').hidden = false;
+    if (via === 'email') { location.href = 'mailto:' + data.email + '?subject=' + encodeURIComponent(M.subject + ': ' + business) + '&body=' + encodeURIComponent(body); return; }
+    const url = 'https://wa.me/' + data.wa + '?text=' + encodeURIComponent(body);
     const w = window.open(url, '_blank', 'noopener,noreferrer');
     if (!w) location.href = url;
   });

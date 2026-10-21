@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "check": "node build.mjs && npx --yes html-validate@11.16.1 dist/index.html dist/en/index.html dist/404.html"
+    "check": "node build.mjs && npx --yes html-validate@11.16.1 dist/index.html dist/id/index.html dist/404.html"
   },
   "engines": { "node": ">=20" }
 }
